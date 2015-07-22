@@ -1,0 +1,87 @@
+README
+assignment 4: arith
+By: Becky Cutler and Julia Rowe
+February 27, 2015
+
+Collaborated with TAs: (primairly) Thomas and Todd, also a few others. Discussed
+with Jared Moskowitz and Yotam Bentov.
+
+Architecture of Solution:
+
+Compression:
+        Our main implementation takes place in Compress40.c, which maps over 
+        the data structures and calls various helper functions from different 
+        modules to complete the overall image compression. We store the 
+        uncompressed RGB pixels in a blocked array.  When we convert these to 
+        component video colorspace, we put them into a blocked array with 
+        blocksize of 2.  Using the CV values we compute the cosine coefficients 
+        and average Pr and Pb value, then pack the word in the correct order. 
+        These words are then stored in a UArray2. This UArray2 is then 
+        outputted to the user as a compressed image.
+        
+        List of Files:
+                40image.c // the provided implementation to read in files
+                compress40.c // main implementation function that maps over the
+                             // arrays and calls helper functions from the 
+                             // following files
+                ConvertRgbCv.c // takes in RGB vales and calculated the
+                               // respected CV values and stores them in a 
+                               // UArray2b
+                chroma.c  // takes in the cosine coefficients and returns
+                          // the average chroma value 
+                luminance.c // takes four Y values and calculates the four 
+                            // cosine coefficients from the DST
+                bitpack.c // the main implementation file for "packing" the
+                          // appropriate values into a word
+
+Decompression:
+        Our implementation is similar to that of compression, except in reverse
+        order. We parse the input compressed image into words and store these 
+        values in a UArray2. We then map over the array, using bitpack to 
+        unpack the words. Using the modules listed below, we obtain the CV 
+        values, which are stored in a UArray2b. Then we convert these values to
+        RGB pixels which are also stored in a UArray2b. This array is then 
+        outputted using Pnm_ppmwrite.
+        
+        List of files:
+                40image.c // the provided implementation to read in files
+                compress40.c // main implementation function that maps over the
+                             // arrays and calls functions from the following 
+                             //files
+                bitpack.c // the main implementation file for "unpacking" the
+                          // words into its respected values
+                luminance.c // uses the inverse of the DST to compute the Y
+                            // values from a, b, c and d that were obtained from
+                            // the word.
+                chroma.c  // takes in the average chroma value and returns the
+                          // chroma codes 
+                ConvertRgb.c // takes in CV values and converts them to RGB
+                             // values
+
+Correct/Incorrect Implementation:
+        We have successfully compressed, then decompressed images of varying
+        sizes, however we are unsure if our compression/decompression will work
+        on their (your) program. One issue that we think may cause our
+        compression/decompression is the type of mapping. Throughout the
+        program, we use various types of mapping (blocked vs row) and arrays
+        (blocked vs unblocked) which may cause some of our values to be placed 
+        in the wrong spot in our array, thus causing the image to be distorted
+        when using a diferent decompress algorithm. 
+        This is tough to test with our program because we may have the same 
+        issue in our compressor and decompressor. However, we stepped through 
+        the compression/decompression and calculated the values at each step 
+        (including the representation of the word) and we attained the correct
+        values, which makes us believe that our program is in fact correct. 
+
+Hours spent:
+        Reading/understanding the project: 10 hours
+        Writing the code for the project: 10 hours
+        Debugging: 30 hours 
+
+Invarients:
+        - Compressed images will always be stored in a UArray2 and decompressed
+          images will always be stored in a UArray2b
+        - Mapping from RGB to CV and CV to RGB will always be a bijection
+        - Mapping from Y values to cosine coefficients or cosine coefficients to
+          Y will always be a bijection.
+
